@@ -55,19 +55,37 @@ function App() {
     }
   };
 
-  const handleUpdateNote = (event: React.FormEvent) => {
+  const handleUpdateNote = async (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedNote) {
-      const newNotes = notes.map((note) => {
-        if (note.id === selectedNote.id) {
-          return { ...note, title: title, content: content };
+      try {
+        const response = await fetch(
+          `http://localhost:5500/api/notes/${selectedNote.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: title,
+              content: content,
+            }),
+          }
+        );
+        if (!response.ok) {
+          throw new Error('Failed to update the note');
         }
-        return note;
-      });
-      setNotes(newNotes);
-      setSelectedNote(null);
-      setTitle('');
-      setContent('');
+        const updatedNote: Note = await response.json();
+        const newNotes = notes.map((note) =>
+          note.id === selectedNote.id ? updatedNote : note
+        );
+        setNotes(newNotes);
+        setTitle('');
+        setContent('');
+        setSelectedNote(null);
+      } catch (error) {
+        console.error('Error updating note:', error);
+      }
     }
   };
   const handleCancel = () => {
