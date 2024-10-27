@@ -13,6 +13,12 @@ function App() {
   const [content, setContent] = useState('');
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
+  const newNote: Note = {
+    id: notes.length + 1,
+    title: title,
+    content: content,
+  };
+
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -27,14 +33,25 @@ function App() {
     fetchNotes();
   }, []);
 
-  const handleAddNote = (event: React.FormEvent) => {
+  const handleAddNote = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('title: ', title);
-    console.log('content: ', content);
-    if (title && content) {
+    try {
+      const response = await fetch('http://localhost:5500/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title,
+          content: content,
+        }),
+      });
+      const newNote: Note = await response.json();
       setNotes([...notes, newNote]);
       setTitle('');
       setContent('');
+    } catch (error) {
+      console.error('Error adding note:', error);
     }
   };
 
@@ -74,11 +91,6 @@ function App() {
     setContent('');
   };
 
-  const newNote: Note = {
-    id: notes.length + 1,
-    title: title,
-    content: content,
-  };
   return (
     <div className="app-container">
       <form
