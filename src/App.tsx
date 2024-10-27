@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
 interface Note {
@@ -7,42 +7,25 @@ interface Note {
   content: string;
 }
 function App() {
-  const [notes, setNotes] = useState<Note[]>([
-    {
-      id: 1,
-      title: 'test note 1',
-      content: 'bla bla note1',
-    },
-    {
-      id: 2,
-      title: 'test note 2 ',
-      content: 'bla bla note2',
-    },
-    {
-      id: 3,
-      title: 'test note 3',
-      content: 'bla bla note3',
-    },
-    {
-      id: 4,
-      title: 'test note 4 ',
-      content: 'bla bla note4',
-    },
-    {
-      id: 5,
-      title: 'test note 5',
-      content: 'bla bla note5',
-    },
-    {
-      id: 6,
-      title: 'test note 6',
-      content: 'bla bla note6',
-    },
-  ]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch('http://localhost:5500/api/notes');
+        const notes: Note[] = await response.json();
+        setNotes(notes);
+      } catch (error) {
+        console.error('Error fetching notes:', error);
+      }
+    };
+
+    fetchNotes();
+  }, []);
 
   const handleAddNote = (event: React.FormEvent) => {
     event.preventDefault();
