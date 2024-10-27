@@ -100,13 +100,18 @@ function App() {
     setContent(note.content);
   };
 
-  const handleDeleteNote = (event: React.MouseEvent, note: Note) => {
+  const handleDeleteNote = async (event: React.MouseEvent, note: Note) => {
     event.stopPropagation();
-    const newNotes = notes.filter((n) => n.id !== note.id);
-    setNotes(newNotes);
-    setSelectedNote(null);
-    setTitle('');
-    setContent('');
+    try {
+      await fetch(`http://localhost:5500/api/notes/${note.id}`, {
+        method: 'DELETE',
+      });
+
+      const newNotes = notes.filter((n) => n.id !== note.id);
+      setNotes(newNotes);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
   };
 
   return (
